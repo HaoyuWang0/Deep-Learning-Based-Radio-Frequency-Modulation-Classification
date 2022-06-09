@@ -1,4 +1,6 @@
-#%% import
+# Filename: CNN_2016.py
+# Description: This file implements a CNN model for RADIOML 2016.10A dataset.
+
 import numpy as np
 import pickle
 from sklearn.metrics import confusion_matrix
@@ -9,9 +11,10 @@ from matplotlib import pyplot as plt
 import tensorflow as tf
 from tensorflow import keras
 
-print("Num GPUs Available: ", len(tf.config.list_physical_devices('GPU')))
+# print("Num GPUs Available: ", len(tf.config.list_physical_devices('GPU')))
 
-#%% pre-process data
+
+### Data Preprocessing
 
 f = open("RML2016.10a_dict.pkl", 'rb')
 Xd = pickle.load(f, encoding='latin1')
@@ -46,8 +49,8 @@ in_shp = list(X_train.shape[1:])
 print(X_train.shape, in_shp)
 classes = mods  # modulations(11 classes)
 
-#%% CNN model
 
+### Build a CNN model
 
 dr = 0.4  # dropout rate (%)
 model = Sequential(name='CNN_Architecture')
@@ -66,9 +69,8 @@ model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accur
 model.build(input_shape=(None, H, W, 1))
 model.summary()
 
-"""
-training
-"""
+
+### Training
 
 nb_epoch = 50
 batch_size = 1024
@@ -87,11 +89,10 @@ history = model.fit(X_train,
 # we re-load the best weights once training is finished
 model.load_weights(filepath)
 score = model.evaluate(X_test, Y_test, verbose=0, batch_size=batch_size)
-print(score)
+# print(score)
 
-
-#%% show accuract & loss curve
-
+'''
+### Accuracy and Loss
 
 plt.figure()
 plt.title('Training performance')
@@ -104,10 +105,10 @@ plt.title('Training performance')
 plt.plot(history.epoch, history.history['loss'], label='train_loss')
 plt.plot(history.epoch, history.history['val_loss'], label='val_loss')
 plt.legend()
+'''
 
-
-#%% plot confusion matrix
-
+'''
+### Confusion Matrix
 
 model.load_weights("baseline_simpleCNN_dr=0.5.h5")
 batch = 1024
@@ -129,10 +130,10 @@ ax.set_yticks(np.arange(len(classes)))
 ax.set_yticklabels(classes)
 fg.set_size_inches(16.5, 8.5, forward=True)
 plt.show()
+'''
 
-"""
-plot confusion matrix vs SNRs
-"""
+
+### Accuracy for each SNR
 
 acc = {}
 for snr in snrs:
@@ -151,20 +152,26 @@ for snr in snrs:
         conf[j, k] = conf[j, k] + 1
     for i in range(0, len(classes)):
         confnorm[i, :] = conf[i, :] / np.sum(conf[i, :])
+    '''
     plt.figure()
     plot_confusion_matrix(confnorm, class_names=classes)
     plt.title("ConvNet Confusion Matrix(SNR=%d)" % (snr))
+    '''
     cor = np.sum(np.diag(conf))
     ncor = np.sum(conf) - cor
-    print("Overall Accuracy: ", cor / (cor + ncor))
+    # print("Overall Accuracy: ", cor / (cor + ncor))
     acc[snr] = 1.0 * cor / (cor + ncor)
 
-"""
-print accuracy curve vs SNRs
-"""
 
-# Plot accuracy curve
+### Save the results
+
+accs = list(map(lambda x: acc[x], snrs))
+results = np.concatenate((snrs,accs),axis=1)
+np.savez('CNN_2016', results)
+
+'''
 plt.plot(snrs, list(map(lambda x: acc[x], snrs)))
 plt.xlabel("Signal to Noise Ratio")
 plt.ylabel("Classification Accuracy")
 plt.title("CNN2 Classification Accuracy on RadioML 2016.10 Alpha")
+'''
