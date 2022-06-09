@@ -1,7 +1,8 @@
 import numpy as np
+from matplotlib import pyplot as plt
 
 ### Plot Accuracy, Loss and Confusion Matrix
-def CNNLSTM2016_plot():
+def CNNLSTM2016_visualize():
 
     # Load the result data
     outfile = 'CNNLSTM2016Results'
