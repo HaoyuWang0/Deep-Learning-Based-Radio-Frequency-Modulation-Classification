@@ -1,7 +1,9 @@
 import numpy as np
+from matplotlib import pyplot as plt
 
+print("HERE")
 ### Plot Accuracy, Loss and Confusion Matrix
-def RNN2016_plot():
+def RNN2016_visualize():
 
     # Load the result data
     outfile = 'RNN2016Results'
