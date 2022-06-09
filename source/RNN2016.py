@@ -1,7 +1,7 @@
 import numpy as np
 
 ### Plot Accuracy, Loss and Confusion Matrix
-def plot_acc_loss_cm():
+def RNN2016_plot():
 
     # Load the result data
     outfile = 'RNN2016Results'
