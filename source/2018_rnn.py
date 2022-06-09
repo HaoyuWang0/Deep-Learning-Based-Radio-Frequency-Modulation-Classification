@@ -11,15 +11,12 @@ import numpy as np
 from tensorflow.keras.layers import Input, Reshape, ZeroPadding2D, Conv2D, Dropout, Flatten, Dense, Activation, \
     MaxPool2D, AlphaDropout
 from tensorflow.keras import layers
-import tensorflow.keras.models as Model
 import matplotlib.pyplot as plt
 
-"""
-read files
-"""
-for i in range(0, 24):  # 24个数据集文件
+data_path = 'data'
+for i in range(0, 23):  # 24个数据集文件
     ########打开文件#######
-    filename = 'full dataset/full_part' + str(i) + '.h5'
+    filename = os.path.join(data_path,'ExtractDataset','part') + str(i) + '.h5'
     print(filename)
     f = h5py.File(filename, 'r')
     ########读取数据#######
@@ -82,8 +79,8 @@ classes = ['32PSK',
            'OOK',
            '16QAM']
 
-X_test = X_test.reshape(-1, 2, 1024, 1)
-X_train = X_train.reshape(-1, 2, 1024, 1)
+X_test = X_test.reshape(-1, 2, 1024)
+X_train = X_train.reshape(-1, 2, 1024)
 data_format = 'channels_last'
 
 in_shp = X_train.shape[1:]  # [1024,2]
@@ -94,7 +91,7 @@ print(in_shp)
 
 
 def baseline_lstm():
-    inputs = Input((1024, 2,))
+    inputs = Input((2, 1024,))
     l = BatchNormalization()(inputs)
     l = LSTM(1024, return_sequences=True, activation='tanh', unroll=True)(l)
     l = LSTM(1024, return_sequences=False, activation='tanh', unroll=True)(l)
@@ -108,12 +105,12 @@ def baseline_lstm():
 
 
 model = baseline_lstm()
-filepath = 'lstm2018.h5'
+filepath = 'models/lstm2018.h5'
 history = model.fit(X_train,
                     Y_train,
                     # batch_size=1000,
                     batch_size=100,  # already changed to 10, original one is 1000
-                    epochs=100,  # changed to 10, original one is 100
+                    epochs=10,  # changed to 10, original one is 100
                     verbose=2,
                     validation_data=(X_test, Y_test),
                     # validation_split = 0.3,
