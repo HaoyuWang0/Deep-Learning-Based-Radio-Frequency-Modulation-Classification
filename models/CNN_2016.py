@@ -14,7 +14,7 @@ from tensorflow import keras
 # print("Num GPUs Available: ", len(tf.config.list_physical_devices('GPU')))
 
 
-### Data Preprocessing
+### Data Preprocessing ###
 
 f = open("RML2016.10a_dict.pkl", 'rb')
 Xd = pickle.load(f, encoding='latin1')
@@ -50,7 +50,7 @@ print(X_train.shape, in_shp)
 classes = mods  # modulations(11 classes)
 
 
-### Build a CNN model
+### Build a CNN model ###
 
 dr = 0.4  # dropout rate (%)
 model = Sequential(name='CNN_Architecture')
@@ -70,7 +70,7 @@ model.build(input_shape=(None, H, W, 1))
 model.summary()
 
 
-### Training
+### Training ###
 
 nb_epoch = 50
 batch_size = 1024
@@ -133,7 +133,7 @@ plt.show()
 '''
 
 
-### Accuracy for each SNR
+### Accuracy for each SNR ###
 
 acc = {}
 for snr in snrs:
@@ -163,7 +163,7 @@ for snr in snrs:
     acc[snr] = 1.0 * cor / (cor + ncor)
 
 
-### Save the results
+### Save the results ###
 
 accs = list(map(lambda x: acc[x], snrs))
 results = np.concatenate((snrs,accs),axis=1)
