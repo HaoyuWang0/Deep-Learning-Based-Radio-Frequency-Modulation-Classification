@@ -47,7 +47,7 @@ $ pip install -r requirements.txt
 
 ### Description:
 
-In the *data* folder, *Download_Datasets.txt* provides the link to download data. File *data_generator.py* can generate the data subset of *RADIOML 2018.10A* dataset.
+In the *data* folder, *Download_Datasets.txt* provides the link to download data. The file *data_generator.py* can generate the data subset of *RADIOML 2018.10A* dataset.
 
 The *models* folder saves all models' parameters after training.
 
@@ -74,4 +74,4 @@ $ python source/${file_name}.py
 ```
 $ jupyter notebook results/Visualizations.ipynb
 ```
-and run all code in *Visualizations.ipynb*
+and run all cells in *Visualizations.ipynb*
