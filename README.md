@@ -57,7 +57,7 @@ The *source* folder contains all the source code for training models.
 
 ## 4. How to Run Our Code
 
-1. Download the *RADIOML 2016.10A* and *RADIOML 2018.10A* datasets from (here)[https://www.deepsig.ai/datasets].
+1. Download the *RADIOML 2016.10A* and *RADIOML 2018.10A* [datasets](https://www.deepsig.ai/datasets).
 
 2. Preprocess the data with *data_generator.py*.
 
