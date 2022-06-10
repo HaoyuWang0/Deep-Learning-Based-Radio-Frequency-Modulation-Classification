@@ -32,31 +32,18 @@ CNN-LSTM models, and compare their performance.
  | -- CNN_2016.npz
  | -- CNNLSTM_2016.npz
  | -- CNNLSTM_2018.npz
-```
  | -- LSTM_2016.npz
-
  | -- LSTM_2018.npz
-
  | -- ResNet33_2018.npz
-
  | -- Visualizations.ipynb
-
  |
-
 -- source
-
  | -- CNN_2016.py
-
  | -- CNNLSTM_2016.py
-
  | -- CNNLSTM_2018.py
-
  | -- LSTM_2016.py
-
  | -- LSTM_2018.py
-
  | -- ResNet33_2018.py
-
  |
-
 -- README.md
+```
