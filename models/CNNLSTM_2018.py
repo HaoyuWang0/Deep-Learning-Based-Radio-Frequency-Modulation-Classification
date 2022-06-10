@@ -1,5 +1,8 @@
+# Filename: CNNLSTM_2018.py
+# Description: This file implements a CNN-LSTM model for RADIOML 2018.10A dataset.
+
 import tensorflow as tf
-print(tf.keras.__version__)
+# print(tf.keras.__version__)
 
 from keras.constraints import max_norm
 from tensorflow.keras.optimizers import Adam
@@ -13,23 +16,27 @@ from tensorflow.keras.layers import Input, Reshape, ZeroPadding2D, Conv2D, Dropo
     MaxPool2D, AlphaDropout
 #import tensorflow.keras.models as Model
 import matplotlib.pyplot as plt
+
+
+### Data Preprocessing ###
+
 data_path = 'data'
-for i in range(0, 23):  # 24个数据集文件
-    ########打开文件#######
+for i in range(0, 23):
+    # Load the data
     filename = os.path.join(data_path,'ExtractDataset','part') + str(i) + '.h5'
     print(filename)
     f = h5py.File(filename, 'r')
-    ########读取数据#######
+
     X_data = f['X'][:]
     Y_data = f['Y'][:]
     Z_data = f['Z'][:]
     f.close()
-    #########分割训练集和测试集#########
-    # 每读取到一个数据文件就直接分割为训练集和测试集，防止爆内存
+
+    # Read the data
     n_examples = X_data.shape[0]
-    n_train = int(n_examples * 0.7)  # 70%训练样本
-    train_idx = np.random.choice(range(0, n_examples), size=n_train, replace=False)  # 随机选取训练样本下标
-    test_idx = list(set(range(0, n_examples)) - set(train_idx))  # 测试样本下标
+    n_train = int(n_examples * 0.7)  # 70 percent of training data
+    train_idx = np.random.choice(range(0, n_examples), size=n_train, replace=False)
+    test_idx = list(set(range(0, n_examples)) - set(train_idx))
     if i == 0:
         X_train = X_data[train_idx]
         Y_train = Y_data[train_idx]
@@ -45,12 +52,14 @@ for i in range(0, 23):  # 24个数据集文件
         Y_test = np.vstack((Y_test, Y_data[test_idx]))
         Z_test = np.vstack((Z_test, Z_data[test_idx]))
 
-print('训练集X维度：', X_train.shape)
-print('训练集Y维度：', Y_train.shape)
-print('训练集Z维度：', Z_train.shape)
-print('测试集X维度：', X_test.shape)
-print('测试集Y维度：', Y_test.shape)
-print('测试集Z维度：', Z_test.shape)
+'''
+print('Training set X dimention:', X_train.shape)
+print('Training set Y dimention:', Y_train.shape)
+print('Training set Z dimention:', Z_train.shape)
+print('Test set X dimention:', X_test.shape)
+print('Test set Y dimention:', Y_test.shape)
+print('Test set Z dimention:', Z_test.shape)
+'''
 
 os.environ["KERAS_BACKEND"] = "tensorflow"
 print(tf.test.gpu_device_name())
@@ -83,12 +92,11 @@ classes = ['32PSK',
 # X_train = X_train.reshape(-1, 2, 1024, 1)
 data_format = 'channels_last'
 
-"""
-resnet building
-"""
+
+### Build a CNN-LSTM model ###
 
 in_shp = X_train.shape[1:]  # [1024,2]
-print(in_shp)
+# print(in_shp)
 Xm_input = Input(in_shp, name='input')
 # input layer
 def CNN_LSTM():
@@ -109,6 +117,8 @@ def CNN_LSTM():
     return model
 
 
+### Training ###
+
 model = CNN_LSTM()
 
 filepath = 'models/cnn_lstm_2018.h5'
@@ -125,22 +135,22 @@ history = model.fit(X_train,
                                                            mode='auto'),
                         tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=10, verbose=0, mode='auto')
                     ])
-"""
-plot loss curve
 
-"""
+'''
+### Loss ###
+
 print('train finish')
 val_loss_list = history.history['val_loss']
 loss_list = history.history['loss']
 plt.plot(range(len(loss_list)), val_loss_list)
 plt.plot(range(len(loss_list)), loss_list)
 plt.show()
+'''
+
 model.load_weights(filepath)
-"""
-plot confusion matrix
 
-"""
-
+'''
+### Confusion Matrix ###
 
 def plot_confusion_matrix(cm, title='Confusion matrix', cmap=plt.cm.Blues, labels=[]):
     plt.figure(figsize=(10, 10))
@@ -167,12 +177,15 @@ for i in range(0, X_test.shape[0]):
 for i in range(0, len(classes)):
     confnorm[i, :] = conf[i, :] / np.sum(conf[i, :])
 plot_confusion_matrix(confnorm, labels=classes)
+'''
 
-"""
-analysis vs 24 SNRs
-"""
+
+### Accuracy for each SNR ###
+
+'''
 for i in range(len(confnorm)):
     print(classes[i], confnorm[i, i])
+'''
 
 acc = {}
 Z_test = Z_test.reshape((len(Z_test)))
@@ -184,27 +197,36 @@ for snr in SNRs:
     pre_Y_test = model.predict(X_test_snr)
     conf = np.zeros([len(classes), len(classes)])
     confnorm = np.zeros([len(classes), len(classes)])
-    for i in range(0, X_test_snr.shape[0]):  # 该信噪比下测试数据量
-        j = list(Y_test_snr[i, :]).index(1)  # 正确类别下标
+    for i in range(0, X_test_snr.shape[0]):
+        j = list(Y_test_snr[i, :]).index(1)
         j = classes.index(classes[j])
-        k = int(np.argmax(pre_Y_test[i, :]))  # 预测类别下标
+        k = int(np.argmax(pre_Y_test[i, :]))
         k = classes.index(classes[k])
         conf[j, k] = conf[j, k] + 1
     for i in range(0, len(classes)):
         confnorm[i, :] = conf[i, :] / np.sum(conf[i, :])
 
+    '''
     plt.figure()
     plot_confusion_matrix(confnorm, labels=classes, title="ConvNet Confusion Matrix (SNR=%d)" % (snr))
+    '''
 
     cor = np.sum(np.diag(conf))
     ncor = np.sum(conf) - cor
-    print("Overall Accuracy %s: " % snr, cor / (cor + ncor))
+    # print("Overall Accuracy %s: " % snr, cor / (cor + ncor))
     acc[snr] = 1.0 * cor / (cor + ncor)
 
-"""
-accuracy vs 24 snrs
-"""
+
+### Save the results ###
+
+snrs = list(acc.keys())
+accs = list(acc.values())
+results = np.concatenate((snrs,accs),axis=1)
+np.savez('CNNLSTM_2018', results)
+
+'''
 plt.plot(list(acc.keys()), list(acc.values()))
 plt.ylabel('ACC')
 plt.xlabel('SNR')
 plt.show()
+'''
