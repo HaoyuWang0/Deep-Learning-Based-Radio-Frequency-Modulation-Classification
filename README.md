@@ -15,7 +15,7 @@ $ pip install -r requirements.txt
   3. matplotlib==3.5.0
   4. mlxtend==0.19.0
   5. numpy==1.20.3
-  6. cikit_learn==1.1.1
+  6. scikit_learn==1.1.1
   7. tensorflow==2.8.0
   8. pickle
 
