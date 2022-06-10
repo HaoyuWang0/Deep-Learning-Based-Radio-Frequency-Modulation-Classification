@@ -167,7 +167,7 @@ for snr in snrs:
 
 accs = list(map(lambda x: acc[x], snrs))
 results = np.concatenate((snrs,accs),axis=1)
-np.savez('CNN_2016', results)
+np.savez('CNN_2016_', results)
 
 '''
 plt.plot(snrs, list(map(lambda x: acc[x], snrs)))
