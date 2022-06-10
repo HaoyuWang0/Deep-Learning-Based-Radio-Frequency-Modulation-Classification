@@ -6,7 +6,7 @@ In the domain of Radio Frequency (RF) signal processing, modulation recognition 
 
 
 ## 2. Built-with
-Install Requirements:
+### Install Requirements:
 ```
 $ pip install -r requirements.txt
 ```
@@ -30,13 +30,6 @@ $ pip install -r requirements.txt
  | -- models.md
  |
 -- results
- | -- CNN_2016.npz
- | -- CNNLSTM_2016.npz
- | -- CNNLSTM_2018.npz
- | -- LSTM_2016.npz
- | -- LSTM_2018.npz
- | -- modulations.pickle
- | -- ResNet33_2018.npz
  | -- Visualizations.ipynb
  |
 -- source
@@ -52,12 +45,20 @@ $ pip install -r requirements.txt
 -- requirements.txt
 ```
 
-Description:
+### Description:
 
-In the 'data' folder, 'Download_Datasets.txt' provides the link to download data. 'data_generator.py' can generate the data subset of RADIOML 2018.10A dataset.
+In the *data* folder, *Download_Datasets.txt* provides the link to download data. File *data_generator.py* can generate the data subset of *RADIOML 2018.10A* dataset.
 
-The 'models' folder saves all models' parameters after training.
+The *models* folder saves all models' parameters after training.
 
-The 'results' folder saves all training results and the 'Visualizations.ipynb' visualizes all results in a Jupyter Notebook.
+The *results* folder saves all training results and *Visualizations.ipynb* visualizes all results in a Jupyter Notebook.
 
-The 'source' folder contains all source code for training models.
+The *source* folder contains all the source code for training models.
+
+## 4. How to Run Our Code
+
+1. Download the *RADIOML 2016.10A* and *RADIOML 2018.10A* datasets from (here)[https://www.deepsig.ai/datasets].
+
+2. Preprocess the data with *data_generator.py*.
+
+3. s
