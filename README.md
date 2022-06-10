@@ -61,4 +61,13 @@ The *source* folder contains all the source code for training models.
 
 2. Preprocess the data with *data_generator.py*.
 
-3. s
+3. Run all source code with
+```
+$ python file_name.py
+```
+
+4. To visualize all training results, open a Jupyter Notebook with
+```
+$ jupyter notebook
+```
+and run all code in *Visualizations.ipynb*
