@@ -13,11 +13,9 @@ CNN-LSTM models, and compare their performance.
 
 
 ## 2. Build-with
-  1. Numpy
-  2. Tensorflow
-  3. Keras
-  4. Scikit-Learn
-
+```
+$ pip install -r requirements.txt
+```
 ## 3. File Structures
 
 ```
