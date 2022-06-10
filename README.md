@@ -21,27 +21,51 @@ CNN-LSTM models, and compare their performance.
 ## 3. File Structures
 
 -- data
+
  | -- data_generator.py
+
  | -- Download_Datasets.txt
+
  |
+
 -- models
+
  | -- models.md
+
  |
+
 -- results
+
  | -- CNN_2016.npz
+
  | -- CNNLSTM_2016.npz
+
  | -- CNNLSTM_2018.npz
+
  | -- LSTM_2016.npz
+
  | -- LSTM_2018.npz
+
  | -- ResNet33_2018.npz
+
  | -- Visualizations.ipynb
+
  |
+
 -- source
+
  | -- CNN_2016.py
+
  | -- CNNLSTM_2016.py
+
  | -- CNNLSTM_2018.py
+
  | -- LSTM_2016.py
+
  | -- LSTM_2018.py
+
  | -- ResNet33_2018.py
+
  |
+
 -- README.md
