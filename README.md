@@ -56,18 +56,22 @@ The *results* folder saves all training results and *Visualizations.ipynb* visua
 The *source* folder contains all the source code for training models.
 
 ## 4. How to Run Our Code
+1. Before runing every script, make sure the data folder is correct.
 
-1. Download the *RADIOML 2016.10A* and *RADIOML 2018.10A* [datasets](https://www.deepsig.ai/datasets).
+2. Download the *RADIOML 2016.10A* and *RADIOML 2018.10A* [datasets](https://www.deepsig.ai/datasets).
 
-2. Preprocess the data with *data_generator.py*.
-
-3. Run all source code with
+3. Preprocess the data with *data_generator.py*.
 ```
-$ python file_name.py
+$ python data/data_generator.py
 ```
 
-4. To visualize all training results, open a Jupyter Notebook with
+4. Run all source code with
 ```
-$ jupyter notebook
+$ python source/${file_name}.py
+```
+
+5. To visualize all training results, open a Jupyter Notebook with
+```
+$ jupyter notebook results/Visualizations.ipynb
 ```
 and run all code in *Visualizations.ipynb*
