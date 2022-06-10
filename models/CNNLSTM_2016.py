@@ -1,3 +1,6 @@
+# Filename: CNNLSTM_2016.py
+# Description: This file implements a CNN-LSTM model for RADIOML 2016.10A dataset.
+
 import numpy as np
 import pickle
 
@@ -41,7 +44,7 @@ def to_onehot(yy):
 Y_train = to_onehot(map(lambda x: mods.index(lbl[x][0]), train_idx))
 Y_test = to_onehot(map(lambda x: mods.index(lbl[x][0]), test_idx))
 in_shp = list(X_train.shape[1:])
-#print(X_train.shape, in_shp)
+# print(X_train.shape, in_shp)
 classes = mods  # modulations(11 classes)
 
 
@@ -89,7 +92,7 @@ history = model.fit(X_train,
 # re-load the best weights once training is finished
 model.load_weights(filepath)
 score = model.evaluate(X_test, Y_test, verbose=0, batch_size=batch_size)
-#print(score)
+# print(score)
 
 acc_base_cnnlstm = history.history['accuracy']
 val_acc_base_cnnlstm = history.history['val_accuracy']
@@ -97,7 +100,7 @@ loss_base_cnnlstm = history.history['loss']
 val_loss_base_cnnlstm = history.history['val_loss']
 epochs = range(1, len(acc_base_cnnlstm) + 1)
 
-
+'''
 ### Confusion Matrix ###
 
 model.load_weights(filepath)
@@ -110,13 +113,42 @@ y_pred_label = np.argmax(predict_x, axis=1)
 y_test_label = np.argmax(Y_test, axis=1)
 cm = confusion_matrix(y_test_label, y_pred_label, normalize='true')
 cm = confusion_matrix(y_test_label, y_pred_label)
+plot_confusion_matrix(cm, labels=classes)
+'''
 
+
+### Accuracy for each SNR ###
+
+acc = {}
+for snr in snrs:
+
+    test_SNRs = map(lambda x: lbl[x][1], test_idx)
+    n = list(test_SNRs)
+    test_X_i = X_test[np.where(np.array(n) == snr)]
+    test_Y_i = Y_test[np.where(np.array(n) == snr)]
+
+    # estimate classes
+    test_Y_i_hat = model.predict(test_X_i)
+    conf = np.zeros([len(classes), len(classes)])
+    confnorm = np.zeros([len(classes), len(classes)])
+    for i in range(0, test_X_i.shape[0]):
+        j = list(test_Y_i[i, :]).index(1)
+        k = int(np.argmax(test_Y_i_hat[i, :]))
+        conf[j, k] = conf[j, k] + 1
+    for i in range(0, len(classes)):
+        confnorm[i, :] = conf[i, :] / np.sum(conf[i, :])
+    '''
+    plt.figure()
+    plot_confusion_matrix(confnorm, labels=classes, title="CNN_LSTM Confusion Matrix (SNR=%d)" % (snr))
+    plt.show()
+    '''
+    cor = np.sum(np.diag(conf))
+    ncor = np.sum(conf) - cor
+    # print("Overall Accuracy: ", cor / (cor + ncor), "for snr: ", snr)
+    acc[snr] = 1.0 * cor / (cor + ncor)
 
 ### Save the results ###
 
-outfile = 'CNNLSTM2016Results'
-np.savez(outfile,acc_base_cnnlstm=acc_base_cnnlstm,
-            val_acc_base_cnnlstm=val_acc_base_cnnlstm,
-            loss_base_cnnlstm=loss_base_cnnlstm,
-            val_loss_base_cnnlstm=val_loss_base_cnnlstm,
-            epochs=epochs,cm=cm)
+accs = list(map(lambda x: acc[x], snrs))
+results = np.concatenate((snrs,accs),axis=1)
+np.savez('CNNLSTM_2016', results)
