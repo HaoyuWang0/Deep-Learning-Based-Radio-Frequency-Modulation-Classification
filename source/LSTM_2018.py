@@ -213,7 +213,7 @@ for snr in SNRs:
 snrs = list(acc.keys())
 accs = list(acc.values())
 results = np.concatenate((snrs,accs),axis=1)
-np.savez('LSTM_2018', results)
+np.savez('LSTM_2018_', results)
 
 '''
 plt.plot(list(acc.keys()), list(acc.values()))

@@ -251,7 +251,7 @@ for snr in SNRs:
 snrs = list(acc.keys())
 accs = list(acc.values())
 results = np.concatenate((snrs,accs),axis=1)
-np.savez('ResNet33_2018', results)
+np.savez('ResNet33_2018_', results)
 
 
 '''

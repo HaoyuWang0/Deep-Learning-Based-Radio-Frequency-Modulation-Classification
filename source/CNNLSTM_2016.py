@@ -151,4 +151,4 @@ for snr in snrs:
 
 accs = list(map(lambda x: acc[x], snrs))
 results = np.concatenate((snrs,accs),axis=1)
-np.savez('CNNLSTM_2016', results)
+np.savez('CNNLSTM_2016_', results)
