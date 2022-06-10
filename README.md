@@ -2,7 +2,7 @@
 ECE 228 Group Project, Spring 2022
 
 ## 1. Introduction:
-In the domain of Radio Frequency (RF) signal processing, modulation recognition is a task of classifying the modulation of received radio signal. It can help receivers better understand the types of communication scheme and emitter. With the advancement of machine learning techniques, experiments prove that neural network models have promising results in this classification task, which can be treated as a multi-label classification problem. In this project, we implemented multiple deep learning models, including CNN, LSTM, ResNet and CNN-LSTM models, and compare their performance.
+In the domain of Radio Frequency (RF) signal processing, modulation recognition is a task of classifying the modulation of received radio signal. It can help receivers better understand the types of communication scheme and the emitters. With the advancement of machine learning techniques, experiments prove that neural network models have promising results in this classification task, which can be treated as a multi-label classification problem. In this project, we implemented multiple deep learning models, including CNN, LSTM, ResNet and CNN-LSTM models, and compare their performance.
 
 
 ## 2. Built-with
@@ -19,7 +19,7 @@ $ pip install -r requirements.txt
   7. tensorflow==2.8.0
   8. pickle
 
-## 3. File Structures
+## 3. File Structure
 
 ```
 -- data
