@@ -1,2 +1,2 @@
-# Deep-Learning-Based-Radio-Frequency-Signal-Processing
-Group Project of ECE 228, Spring 2022
+# Deep Learning Based Radio Frequency Modulation Classification
+ECE 228 Group Project, Spring 2022
