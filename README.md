@@ -6,9 +6,19 @@ In the domain of Radio Frequency (RF) signal processing, modulation recognition 
 
 
 ## 2. Built-with
+Install Requirements:
 ```
 $ pip install -r requirements.txt
 ```
+  1. h5py==3.6.0
+  2. keras==2.8.0
+  3. matplotlib==3.5.0
+  4. mlxtend==0.19.0
+  5. numpy==1.20.3
+  6. cikit_learn==1.1.1
+  7. tensorflow==2.8.0
+  8. pickle
+
 ## 3. File Structures
 
 ```
@@ -38,6 +48,7 @@ $ pip install -r requirements.txt
  | -- ResNet33_2018.py
  |
 -- README.md
+ |
 -- requirements.txt
 ```
 
