@@ -1,8 +1,10 @@
-#%% import 
+# Filename: CNN_2018.py
+# Description: This file implements a CNN model for RADIOML 2018.10A dataset.
+
 import tensorflow as tf
 import tensorflow.compat.v1.keras.backend as K
 import DataGenerator
-print(tf.keras.__version__)
+# print(tf.keras.__version__)
 import numpy as np
 import h5py
 import os, random
@@ -14,25 +16,27 @@ import tensorflow.keras.models as Model
 import matplotlib.pyplot as plt
 from matplotlib.pyplot import MultipleLocator
 
-print("Num GPUs Available: ", len(tf.config.list_physical_devices('GPU')))
+# print("Num GPUs Available: ", len(tf.config.list_physical_devices('GPU')))
+
+### Data Preprocessing ###
+
 data_path = 'data'
-#%%
+
 for i in range(0, 2):  # 24 sub-datasets hardcode
-    ########open each sub-dataset file#######
+    # open each sub-dataset file
     filename = os.path.join(data_path,'ExtractDataset','part') + str(i) + '.h5'
-    print(filename)
+    # print(filename)
     f = h5py.File(filename, 'r')
-    ########read data#######
     X_data = f['X'][:]
     Y_data = f['Y'][:]
     Z_data = f['Z'][:]
     f.close()
-    #########分割训练集和测试集#########
-    # 每读取到一个数据文件就直接分割为训练集和测试集，防止爆内存
+
+    # Load data
     n_examples = X_data.shape[0]
-    n_train = int(n_examples * 0.7)  # 70%训练样本
-    train_idx = np.random.choice(range(0, n_examples), size=n_train, replace=False)  # 随机选取训练样本下标
-    test_idx = list(set(range(0, n_examples)) - set(train_idx))  # 测试样本下标
+    n_train = int(n_examples * 0.7)  # 70 percent training data
+    train_idx = np.random.choice(range(0, n_examples), size=n_train, replace=False)
+    test_idx = list(set(range(0, n_examples)) - set(train_idx))
     if i == 0:
         X_train = X_data[train_idx]
         Y_train = Y_data[train_idx]
@@ -48,15 +52,17 @@ for i in range(0, 2):  # 24 sub-datasets hardcode
         Y_test = np.vstack((Y_test, Y_data[test_idx]))
         Z_test = np.vstack((Z_test, Z_data[test_idx]))
 
+'''
 print('Training set X Dimension:', X_train.shape)
 print('Training set Y Dimension:', Y_train.shape)
 print('Training set Z Dimension:', Z_train.shape)
 print('Test set X Dimension:', X_test.shape)
 print('Test set Y Dimension:', Y_test.shape)
 print('Test set Z Dimension:', Z_test.shape)
+'''
 
 os.environ["KERAS_BACKEND"] = "tensorflow"
-print(tf.test.gpu_device_name())
+# print(tf.test.gpu_device_name())
 classes = ['32PSK',
            '16APSK',
            '32QAM',
@@ -86,7 +92,8 @@ X_test = X_test.reshape(-1, 2, 1024, 1)
 X_train = X_train.reshape(-1, 2, 1024, 1)
 data_format = 'channels_last'
 
-#%%resnet building
+
+### Build a CNN Model ###
 
 def residual_stack(Xm, kennel_size, Seq, pool_size, if_max):
     # 1*1 Conv Linear original filtersize 32
@@ -115,7 +122,7 @@ def residual_stack(Xm, kennel_size, Seq, pool_size, if_max):
 
 
 in_shp = X_train.shape[1:]  # [1024,2]
-print(in_shp)
+# print(in_shp)
 # input layer
 Xm_input = Input(in_shp, name='input')
 # Xm = Reshape([1,512,4], input_shape=in_shp)(Xm_input)
@@ -146,7 +153,6 @@ adam = tf.keras.optimizers.Adam(lr=0.001)
 model.compile(loss='categorical_crossentropy', optimizer=adam)
 model.summary()
 
-#%%
 filepath = 'ResNet2018.h5'
 history = model.fit(X_train,
                     Y_train,
@@ -162,7 +168,8 @@ history = model.fit(X_train,
                         tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=10, verbose=0, mode='auto')
                     ])
 
-#%% plot loss curve
+'''
+### Plot the loss curve ###
 
 print('train finish')
 val_loss_list = history.history['val_loss']
@@ -170,13 +177,12 @@ loss_list = history.history['loss']
 plt.plot(range(len(loss_list)), val_loss_list)
 plt.plot(range(len(loss_list)), loss_list)
 plt.show()
+'''
 
 model.load_weights(filepath)
-"""
-plot confusion matrix
 
-"""
-
+'''
+### Confusion Matrix ###
 
 def plot_confusion_matrix(cm, title='Confusion matrix', cmap=plt.cm.Blues, labels=[]):
     plt.figure(figsize=(10, 10))
@@ -203,12 +209,15 @@ for i in range(0, X_test.shape[0]):
 for i in range(0, len(classes)):
     confnorm[i, :] = conf[i, :] / np.sum(conf[i, :])
 plot_confusion_matrix(confnorm, labels=classes)
+'''
 
-"""
-analysis vs 24 SNRs
-"""
+
+### Accuracy for each SNR ###
+
+'''
 for i in range(len(confnorm)):
     print(classes[i], confnorm[i, i])
+'''
 
 acc = {}
 Z_test = Z_test.reshape((len(Z_test)))
@@ -220,29 +229,37 @@ for snr in SNRs:
     pre_Y_test = model.predict(X_test_snr)
     conf = np.zeros([len(classes), len(classes)])
     confnorm = np.zeros([len(classes), len(classes)])
-    for i in range(0, X_test_snr.shape[0]):  # 该信噪比下测试数据量
-        j = list(Y_test_snr[i, :]).index(1)  # 正确类别下标
+    for i in range(0, X_test_snr.shape[0]):
+        j = list(Y_test_snr[i, :]).index(1)
         j = classes.index(classes[j])
-        k = int(np.argmax(pre_Y_test[i, :]))  # 预测类别下标
+        k = int(np.argmax(pre_Y_test[i, :]))
         k = classes.index(classes[k])
         conf[j, k] = conf[j, k] + 1
     for i in range(0, len(classes)):
         confnorm[i, :] = conf[i, :] / np.sum(conf[i, :])
 
+    '''
     plt.figure()
     plot_confusion_matrix(confnorm, labels=classes, title="ConvNet Confusion Matrix (SNR=%d)" % (snr))
+    '''
 
     cor = np.sum(np.diag(conf))
     ncor = np.sum(conf) - cor
-    print("Overall Accuracy %s: " % snr, cor / (cor + ncor))
+    # print("Overall Accuracy %s: " % snr, cor / (cor + ncor))
     acc[snr] = 1.0 * cor / (cor + ncor)
 
-"""
-accuracy vs 24 snrs
-"""
+'''
+### Save the results ###
+
+snrs = list(acc.keys())
+accs = list(acc.values())
+results = np.concatenate((snrs,accs),axis=1)
+np.savez('CNN_2018', results)
+'''
+
+'''
 plt.plot(list(acc.keys()), list(acc.values()))
 plt.ylabel('ACC')
 plt.xlabel('SNR')
 plt.show()
-
-# %%
+'''
