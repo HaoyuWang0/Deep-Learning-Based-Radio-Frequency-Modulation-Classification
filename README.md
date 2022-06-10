@@ -74,4 +74,4 @@ $ python source/${file_name}.py
 ```
 $ jupyter notebook results/Visualizations.ipynb
 ```
-and run all cells in *Visualizations.ipynb*
+and run all the cells in *Visualizations.ipynb*
