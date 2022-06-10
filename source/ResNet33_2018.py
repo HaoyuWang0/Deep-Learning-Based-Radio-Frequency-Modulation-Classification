@@ -1,32 +1,32 @@
-# Filename: CNNLSTM_2018.py
-# Description: This file implements a CNN-LSTM model for RADIOML 2018.10A dataset.
+# Filename: CNN_2018.py
+# Description: This file implements a CNN model for RADIOML 2018.10A dataset.
 
 import tensorflow as tf
-# print(tf.keras.__version__)
-
-from keras.constraints import max_norm
-from tensorflow.keras.optimizers import Adam
-from keras import Input, Model
-from keras.layers import Dropout, Dense, BatchNormalization, LSTM, Conv1D, MaxPool1D, Flatten
-
+import tensorflow.compat.v1.keras.backend as K
+import DataGenerator
+print(tf.keras.__version__)
+import numpy as np
 import h5py
 import os, random
 import numpy as np
 from tensorflow.keras.layers import Input, Reshape, ZeroPadding2D, Conv2D, Dropout, Flatten, Dense, Activation, \
     MaxPool2D, AlphaDropout
-#import tensorflow.keras.models as Model
+from tensorflow.keras import layers
+import tensorflow.keras.models as Model
 import matplotlib.pyplot as plt
+from matplotlib.pyplot import MultipleLocator
 
+print("Num GPUs Available: ", len(tf.config.list_physical_devices('GPU')))
 
 ### Data Preprocessing ###
 
 data_path = 'data'
-for i in range(0, 23):
+
+for i in range(0, 24):
     # Load the data
     filename = os.path.join(data_path,'ExtractDataset','part') + str(i) + '.h5'
-    print(filename)
+    print('Filename:',filename)
     f = h5py.File(filename, 'r')
-
     X_data = f['X'][:]
     Y_data = f['Y'][:]
     Z_data = f['Z'][:]
@@ -34,7 +34,7 @@ for i in range(0, 23):
 
     # Read the data
     n_examples = X_data.shape[0]
-    n_train = int(n_examples * 0.7)  # 70 percent of training data
+    n_train = int(n_examples * 0.7)  # 70 percent training data
     train_idx = np.random.choice(range(0, n_examples), size=n_train, replace=False)
     test_idx = list(set(range(0, n_examples)) - set(train_idx))
     if i == 0:
@@ -52,14 +52,12 @@ for i in range(0, 23):
         Y_test = np.vstack((Y_test, Y_data[test_idx]))
         Z_test = np.vstack((Z_test, Z_data[test_idx]))
 
-'''
-print('Training set X dimention:', X_train.shape)
-print('Training set Y dimention:', Y_train.shape)
-print('Training set Z dimention:', Z_train.shape)
-print('Test set X dimention:', X_test.shape)
-print('Test set Y dimention:', Y_test.shape)
-print('Test set Z dimention:', Z_test.shape)
-'''
+print('Training set X Dimension:', X_train.shape)
+print('Training set Y Dimension:', Y_train.shape)
+print('Training set Z Dimension:', Z_train.shape)
+print('Test set X Dimension:', X_test.shape)
+print('Test set Y Dimension:', Y_test.shape)
+print('Test set Z Dimension:', Z_test.shape)
 
 os.environ["KERAS_BACKEND"] = "tensorflow"
 print(tf.test.gpu_device_name())
@@ -88,45 +86,77 @@ classes = ['32PSK',
            'OOK',
            '16QAM']
 
-# X_test = X_test.reshape(-1, 2, 1024, 1)
-# X_train = X_train.reshape(-1, 2, 1024, 1)
+X_test = X_test.reshape(-1, 2, 1024, 1)
+X_train = X_train.reshape(-1, 2, 1024, 1)
 data_format = 'channels_last'
 
 
-### Build a CNN-LSTM model ###
+### Build a ResNet33 Model ###
+
+def residual_stack(Xm, kennel_size, Seq, pool_size, if_max):
+    # 1*1 Conv Linear original filtersize 32
+    Xm = Conv2D(32, (1, 1), padding='same', name=Seq + "_conv1", kernel_initializer='glorot_normal',
+                data_format=data_format)(Xm)
+    # Residual Unit 1
+    Xm_shortcut = Xm
+    Xm = Conv2D(32, kennel_size, padding='same', activation="relu", name=Seq + "_conv2",
+                kernel_initializer='glorot_normal', data_format=data_format)(Xm)
+    Xm = Conv2D(32, kennel_size, padding='same', name=Seq + "_conv3", kernel_initializer='glorot_normal',
+                data_format=data_format)(Xm)
+    Xm = layers.add([Xm, Xm_shortcut])
+    Xm = Activation("relu")(Xm)
+    # Residual Unit 2
+    Xm_shortcut = Xm
+    Xm = Conv2D(32, kennel_size, padding='same', activation="relu", name=Seq + "_conv4",
+                kernel_initializer='glorot_normal', data_format=data_format)(Xm)
+    Xm = Conv2D(32, kennel_size, padding='same', name=Seq + "_conv5", kernel_initializer='glorot_normal',
+                data_format=data_format)(Xm)
+    Xm = layers.add([Xm, Xm_shortcut])
+    Xm = Activation("relu")(Xm)
+    # MaxPooling
+    if (if_max):
+        Xm = MaxPool2D(pool_size=pool_size, strides=pool_size, padding='valid', data_format=data_format)(Xm)
+    return Xm
+
 
 in_shp = X_train.shape[1:]  # [1024,2]
-# print(in_shp)
-Xm_input = Input(in_shp, name='input')
+print('Input Shape:',in_shp)
 # input layer
-def CNN_LSTM():
-    inputs = Input((1024, 2,))
-    l = BatchNormalization()(inputs)
-    l = Conv1D(filters=128, kernel_size=5, activation='relu')(l)
-    l = MaxPool1D(3)(l)
-    l = Conv1D(filters=128, kernel_size=5, activation='relu')(l)
-    l = LSTM(128, return_sequences=True, activation='tanh', unroll=True)(l)
-    l = LSTM(128, return_sequences=True, activation='tanh', unroll=True)(l)
-    l = Dropout(0.8)(l)
-    l = Flatten()(l)
-    outputs = Dense(24, activation='softmax', kernel_constraint=max_norm(2.))(l)
-
-    model = Model(inputs, outputs)
-    model.compile(loss='categorical_crossentropy', optimizer=Adam(learning_rate=0.001), metrics=['accuracy'])
-    model.summary()
-    return model
+Xm_input = Input(in_shp, name='input')
+# Xm = Reshape([1,512,4], input_shape=in_shp)(Xm_input)
 
 
-### Training ###
+# Residual Srack
 
-model = CNN_LSTM()
+Xm = residual_stack(Xm_input, kennel_size=(3, 2), Seq="ReStk0", pool_size=(2, 2),
+                    if_max=False)
+X = MaxPool2D(pool_size=(2, 2), strides=(2, 1), padding='valid', data_format=data_format)(Xm)
+Xm = residual_stack(Xm, kennel_size=(3, 2), Seq="ReStk1", pool_size=(1, 2), if_max=True)  # shape:(256,1,32)
+Xm = residual_stack(Xm, kennel_size=(3, 2), Seq="ReStk2", pool_size=(1, 2), if_max=True)  # shape:(128,1,32)
+Xm = residual_stack(Xm, kennel_size=(3, 2), Seq="ReStk3", pool_size=(1, 2), if_max=True)  # shape:(64,1,32)
+Xm = residual_stack(Xm, kennel_size=(3, 2), Seq="ReStk4", pool_size=(1, 2), if_max=True)  # shape:(32,1,32)
+Xm = residual_stack(Xm, kennel_size=(3, 2), Seq="ReStk5", pool_size=(1, 2), if_max=True)  # shape:(16,1,32)
 
-filepath = 'models/cnn_lstm_2018.h5'
+Xm = Flatten(data_format=data_format, name='flat')(Xm)
+Xm = Dense(128, activation='relu', kernel_initializer='glorot_normal', name="dense1")(Xm)
+Xm = AlphaDropout(0.3)(Xm)
+# Full Con 2
+Xm = Dense(len(classes), kernel_initializer='glorot_normal', name="dense2")(Xm)
+Xm = AlphaDropout(0.3)(Xm)
+# SoftMax
+Xm = Activation('softmax', name='activate')(Xm)
+# Create Model
+model = Model.Model(inputs=Xm_input, outputs=Xm)
+adam = tf.keras.optimizers.Adam(lr=0.001)
+model.compile(loss='categorical_crossentropy', optimizer=adam)
+model.summary()
+
+filepath = 'ResNet2018.h5'
 history = model.fit(X_train,
                     Y_train,
                     # batch_size=1000,
                     batch_size=1000,  # already changed to 10, original one is 1000
-                    epochs=100,  # changed to 10, original one is 100
+                    epochs=10,  # changed to 10, original one is 100
                     verbose=2,
                     validation_data=(X_test, Y_test),
                     # validation_split = 0.3,
@@ -137,7 +167,7 @@ history = model.fit(X_train,
                     ])
 
 '''
-### Loss ###
+### Plot the loss curve ###
 
 print('train finish')
 val_loss_list = history.history['val_loss']
@@ -213,16 +243,16 @@ for snr in SNRs:
 
     cor = np.sum(np.diag(conf))
     ncor = np.sum(conf) - cor
-    # print("Overall Accuracy %s: " % snr, cor / (cor + ncor))
+    print("Overall Accuracy %s: " % snr, cor / (cor + ncor))
     acc[snr] = 1.0 * cor / (cor + ncor)
-
 
 ### Save the results ###
 
 snrs = list(acc.keys())
 accs = list(acc.values())
 results = np.concatenate((snrs,accs),axis=1)
-np.savez('CNNLSTM_2018', results)
+np.savez('ResNet33_2018', results)
+
 
 '''
 plt.plot(list(acc.keys()), list(acc.values()))

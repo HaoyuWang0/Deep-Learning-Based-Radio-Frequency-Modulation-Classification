@@ -11,7 +11,7 @@ from matplotlib import pyplot as plt
 import tensorflow as tf
 from tensorflow import keras
 
-# print("Num GPUs Available: ", len(tf.config.list_physical_devices('GPU')))
+print("Num GPUs Available: ", len(tf.config.list_physical_devices('GPU')))
 
 
 ### Data Preprocessing ###
@@ -89,7 +89,7 @@ history = model.fit(X_train,
 # we re-load the best weights once training is finished
 model.load_weights(filepath)
 score = model.evaluate(X_test, Y_test, verbose=0, batch_size=batch_size)
-# print(score)
+print('Score:',score)
 
 '''
 ### Accuracy and Loss
@@ -159,7 +159,7 @@ for snr in snrs:
     '''
     cor = np.sum(np.diag(conf))
     ncor = np.sum(conf) - cor
-    # print("Overall Accuracy: ", cor / (cor + ncor))
+    print("Overall Accuracy: ", cor / (cor + ncor))
     acc[snr] = 1.0 * cor / (cor + ncor)
 
 
