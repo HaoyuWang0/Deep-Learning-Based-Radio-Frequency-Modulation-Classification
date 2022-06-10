@@ -38,4 +38,5 @@ $ pip install -r requirements.txt
  | -- ResNet33_2018.py
  |
 -- README.md
+-- requirements.txt
 ```
