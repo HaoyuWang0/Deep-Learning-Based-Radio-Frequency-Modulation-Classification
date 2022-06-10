@@ -6,11 +6,9 @@ In the domain of Radio Frequency (RF) signal processing, modulation recognition 
 
 
 ## 2. Built-with
-  1. Numpy
-  2. Tensorflow
-  3. Keras
-  4. Scikit-Learn
-
+```
+$ pip install -r requirements.txt
+```
 ## 3. File Structures
 
 ```
