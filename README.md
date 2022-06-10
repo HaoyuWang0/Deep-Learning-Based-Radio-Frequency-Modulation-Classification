@@ -20,7 +20,7 @@ CNN-LSTM models, and compare their performance.
 
 ## 3. File Structures
 
-'''
+```
 -- data
  | -- data_generator.py
  | -- Download_Datasets.txt
@@ -31,9 +31,8 @@ CNN-LSTM models, and compare their performance.
 -- results
  | -- CNN_2016.npz
  | -- CNNLSTM_2016.npz
-'''
  | -- CNNLSTM_2018.npz
-
+```
  | -- LSTM_2016.npz
 
  | -- LSTM_2018.npz
