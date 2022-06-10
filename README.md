@@ -29,12 +29,6 @@ CNN-LSTM models, and compare their performance.
  | -- models.md
  |
 -- results
- | -- CNN_2016.npz
- | -- CNNLSTM_2016.npz
- | -- CNNLSTM_2018.npz
- | -- LSTM_2016.npz
- | -- LSTM_2018.npz
- | -- ResNet33_2018.npz
  | -- Visualizations.ipynb
  |
 -- source
