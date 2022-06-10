@@ -1,14 +1,17 @@
+# Filename: data_generator.py
+# Description: This file will generate data subsets of RADIOML 2018.10A dataset.
+
 import numpy as np
 import h5py
 
-##############################read files from downloading#######################################
+#################### Read Files From Downloading ##############################
 f = h5py.File('GOLD_XYZ_OSC.0001_1024.hdf5', 'r')
 dir_path = 'ExtractDataset'
 modu_snr_size = 1200
-############################################################################
-"""
-sampling the dataset
-"""
+###############################################################################
+
+### Sampling The Dataset ###
+
 for modu in range(24):
     X_list = []
     Y_list = []
